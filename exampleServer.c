@@ -96,10 +96,12 @@ int main() {
         printf("%s\n", buff);
         int fileIndex = checkFileExists(buff);
         if(valread > 0 && fileIndex != -1) {
+            memset(data, 0, sizeof(data));
             readFile(files[fileIndex]);
-            printf("responseHeader: %s\n", responseHeader);
+            printf("data: %s\n", data);
             printf("size of RH: %d\n", sizeof(responseHeader));
-            send(tcp_client_socket, responseHeader, sizeof(responseHeader), 0);
+            send(tcp_client_socket, data, sizeof(data), 0);
+            memset(data, 0, sizeof(data));
         }
     }
 
@@ -122,7 +124,7 @@ void readFile(char *fileName) {
         ++byteSize;
         strncat(data, &ch, 1);
     }
-    printf("responseHeader: %s\n", responseHeader);
+    printf("data: %s\n", data);
     printf("bytesize = %d\n", byteSize);
 }
 

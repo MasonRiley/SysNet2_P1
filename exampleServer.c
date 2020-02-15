@@ -10,7 +10,7 @@
 
 #include "exampleServer.h"
 
-char responseHeader[1024] = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: 59\n\n";
+char responseHeader[1024] = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: ";
 char data[1024];
 char files[256][256];
 int numFiles = 0;
@@ -98,7 +98,6 @@ int main() {
         if(valread > 0 && fileIndex != -1) {
             memset(data, 0, sizeof(data));
             readFile(files[fileIndex]);
-            printf("data: %s\n", data);
             printf("size of RH: %d\n", sizeof(responseHeader));
             send(tcp_client_socket, data, sizeof(data), 0);
             memset(data, 0, sizeof(data));
@@ -113,17 +112,23 @@ int main() {
     return 0;
 }
 
-void readFile(char *fileName) {
+void readFile(char *fileName) { 
+    char ch;
+    char dataBuff[1024];
+    char sizeBuff[10];
     FILE *fin;
     fin = fopen(fileName, "r");
-    //fin = fopen("index.html", "r");
-    strcat(data, responseHeader);
-    char ch;
     int byteSize = 0;
     while((ch = fgetc(fin)) != EOF) {
         ++byteSize;
-        strncat(data, &ch, 1);
+        strncat(dataBuff, &ch, 1);
     }
+    //itoa(byteSize, sizeBuff, 10);
+    sprintf(sizeBuff, "%d", byteSize);
+    strcat(sizeBuff, "\n\n");
+    strcat(data, responseHeader);
+    strcat(data, sizeBuff);
+    strcat(data, dataBuff);
     printf("data: %s\n", data);
     printf("bytesize = %d\n", byteSize);
 }

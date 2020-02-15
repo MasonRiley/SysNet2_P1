@@ -6,10 +6,10 @@ DEPS =
 
 all: Client Server
 
-Client: exampleClient.c
+Client: client.c
 	$(CC) -o Client client.c
 
-Server: exampleServer.c  	
+Server: server.c  	
 	$(CC) -o Server server.c 
 
 clean:

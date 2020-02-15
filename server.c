@@ -11,17 +11,23 @@
 #include <sys/socket.h>     //API and definitions for the sockets
 #include <sys/types.h>      //more definitions
 #include <netinet/in.h>     //Structures to store address information
+#include <unistd.h>         //Defines misc. symbolic constants and types
 #include <string.h>         //String methods
 #include <dirent.h>         //Directory & file search methods
 
 #include "server.h"
 
-char responseHeader[1024] = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: ";
-char data[1024];
+#define PortNumber 60001
+#define DataSize 1024
+#define MaxConnections 5
+
+char responseHeader[DataSize] = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: ";
+char data[DataSize];
 char files[256][256];
 int numFiles = 0;
 
 int main() {    
+    int i;
     //-----------------------------------------
     //-----1. Get list of all files in cwd-----
     //-----------------------------------------
@@ -51,7 +57,7 @@ int main() {
     tcp_server_address.sin_family = AF_INET;
 
     // Passing the port number, converting in right network byte order
-    tcp_server_address.sin_port = htons(39756); 
+    tcp_server_address.sin_port = htons(PortNumber); 
 
     // Connecting to 0.0.0.0
     tcp_server_address.sin_addr.s_addr = INADDR_ANY; 
@@ -73,22 +79,24 @@ int main() {
 
     // Params: Which socket
     //         How many connections
-    listen(tcp_server_socket, 5);
+    listen(tcp_server_socket, MaxConnections);
     printf("Server started, waiting for connection...\n");
-
-    // Server socket to interact with client, structure like before - if 
-    // you know - else NULL for local connection
-    int tcp_client_socket;
-    tcp_client_socket = accept(tcp_server_socket, NULL, NULL); 
-    printf("Connection successfully made.\n");
-
     /*~~~~~~~~~~~~~~~FROM HERE TO~~~~~~~~~~~~~~~~~~*/
+    /*
     checkFileExists("GET /index.html dadf");
     checkFileExists("GET /nope.html estsd");
     readFile("index.html");
+    */
     /*~~~~~~~~~~~~~~HERE ARE TESTS~~~~~~~~~~~~~~~~~*/
 
     while(1) {
+
+        // Server socket to interact with client, structure like before - if 
+        // you know - else NULL for local connection
+        int tcp_client_socket;
+        tcp_client_socket = accept(tcp_server_socket, NULL, NULL); 
+        printf("Connection successfully made.\n");
+
 
         //-----------------------------
         //-----7. Send data stream-----
@@ -100,14 +108,17 @@ int main() {
          *         Flags (optional) */
         char buff[30000] = {0};
         long valread = read(tcp_client_socket, buff, 30000);
-        printf("%s\n", buff); //DEBUG STRING - remove when done. Prints client request string
+        printf("DEBUG request read: %s\n", buff); //DEBUG STRING - remove when done. Prints client request string
 
         //Determine if requested html file exists
         int fileIndex = checkFileExists(buff);
         if(valread > 0 && fileIndex != -1) {
             //If so, retrieve file data and format response header appropriately 
             memset(data, 0, sizeof(data)); //Reset data from prior uses
-            readFile(files[fileIndex]);
+            if(fileIndex != -1)
+            {
+                readFile(files[fileIndex]);
+            }
 
             //Then send formatted response back to client 
             send(tcp_client_socket, data, sizeof(data), 0);
@@ -185,6 +196,7 @@ int checkFileExists(char *buff) {
     int i = 0;
     char fileName[256];
     char ch = buff[i + OFFSET];
+    
     printf("FILE NAME = %s\n", fileName);
     while(ch != ' ') {
         fileName[i++] = ch;
@@ -202,4 +214,22 @@ int checkFileExists(char *buff) {
     memset(fileName, 0, sizeof(fileName));
     printf("FILE DOES NOT EXIST\n");
     return -1;
+}
+
+int parseRequest(char* request, int reqSize, char* fileName)
+{
+    char ch;
+    int i, nameSize = 0;
+    
+    for(i = 0; i < reqSize && ch != '/'; i++)
+    {
+        ch = request[i];
+    }
+    while(ch != ' ')
+    {
+        ch = request[i];
+        fileName[i++] = ch;
+        nameSize++;
+    }
+    return nameSize;//Return 0 for size of zero if no file name could be parsed.
 }

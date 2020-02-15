@@ -13,6 +13,7 @@
 #include <sys/socket.h>     //API and definitions for the sockets
 #include <sys/types.h>      //more definitions
 #include <netinet/in.h>     //Structures to store address information
+#include <unistd.h>         //Defines misc. symbolic constants and types
 #include <string.h>         //String methods
 
 int main(){    

@@ -6,7 +6,8 @@
 #include <sys/types.h>      //more definitions
 #include <netinet/in.h>     //Structures to store address information
 int main() {    
-    char tcp_server_message[256] = " Hello, I am the TCP Server you successfully connected to!! \n\n               Bye Bye!!!\n\n";
+    char tcp_server_message[256] = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
+    //char tcp_server_message[256] = " Hello, I am the TCP Server you successfully connected to!! \n\n               Bye Bye!!!\n\n";
 
     //----------------------------------
     //-----Create the server socket-----
@@ -75,6 +76,7 @@ int main() {
         char buff[30000] = {0};
         long valread = read(tcp_client_socket, buff, 30000);
         printf("%s\n", buff);
+        //write(tcp_client_socket, tcp_server_message, sizeof(tcp_server_message));
         send(tcp_client_socket, tcp_server_message, sizeof(tcp_server_message), 0);
     }
 

@@ -5,9 +5,15 @@
 #include <sys/socket.h>     //API and definitions for the sockets
 #include <sys/types.h>      //more definitions
 #include <netinet/in.h>     //Structures to store address information
+#include <string.h>
+
+#include "exampleServer.h"
+
+char responseHeader[1024] = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: 59\n\n";
+
 int main() {    
     char tcp_server_message[256] = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: 59\n\n<!DOCTPYE html>\n<html>\n<body>\n<h1> HEADING </h1>\n</body>\n\n";
-    //char tcp_server_message[256] = " Hello, I am the TCP Server you successfully connected to!! \n\n               Bye Bye!!!\n\n";
+
 
     //----------------------------------
     //-----Create the server socket-----
@@ -76,8 +82,12 @@ int main() {
         char buff[30000] = {0};
         long valread = read(tcp_client_socket, buff, 30000);
         printf("%s\n", buff);
-        //write(tcp_client_socket, tcp_server_message, sizeof(tcp_server_message));
-        send(tcp_client_socket, tcp_server_message, sizeof(tcp_server_message), 0);
+        
+        readFile("example");
+        printf("responseHeader: %s\n", responseHeader);
+        printf("size of RH: %d\n", sizeof(responseHeader));
+        send(tcp_client_socket, responseHeader, sizeof(responseHeader), 0);
+        //send(tcp_client_socket, tcp_server_message, sizeof(tcp_server_message), 0);
     }
 
     // Close the socket
@@ -87,4 +97,16 @@ int main() {
 }
 
 void readFile(char *fileName) {
+    FILE *fin;
+    //fin = fopen(fileName, "r");
+    fin = fopen("index.html", "r");
     
+    char ch;
+    int byteSize = 0;
+    while((ch = fgetc(fin)) != EOF) {
+        ++byteSize;
+        strncat(responseHeader, &ch, 1);
+    }
+    printf("bytesize = %d\n", byteSize);
+}
+

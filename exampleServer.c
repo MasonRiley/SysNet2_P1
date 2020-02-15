@@ -74,8 +74,8 @@ int main() {
     // you know - else NULL for local connection
     int tcp_client_socket;
 
-    checkFileExists("GET index.html dadf");
-    checkFileExists("GET nope.html estsd");
+    checkFileExists("GET /index.html dadf");
+    checkFileExists("GET /nope.html estsd");
     printf("Server started, waiting for connection...\n");
     while(1) {
         tcp_client_socket = accept(tcp_server_socket, NULL, NULL); 
@@ -141,7 +141,7 @@ void getFiles() {
 }
 
 int checkFileExists(char *buff) {
-    const int OFFSET = 4; //The first 4 characters of a request are 'GET ' 
+    const int OFFSET = 5; //The first 5 characters of a request are 'GET /' 
     int i = 0;
     char fileName[256];
     char ch = buff[i + OFFSET];

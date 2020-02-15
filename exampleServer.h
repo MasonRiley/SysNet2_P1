@@ -3,4 +3,8 @@
 
 void readFile(char *fileName);
 
+void getFiles();
+
+int checkFileExists(char *buff);
+
 #endif

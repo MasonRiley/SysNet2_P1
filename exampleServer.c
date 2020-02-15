@@ -131,6 +131,8 @@ void readFile(char *fileName) {
     strcat(data, dataBuff);
     printf("data: %s\n", data);
     printf("bytesize = %d\n", byteSize);
+    memset(dataBuff, 0, sizeof(dataBuff));
+    memset(sizeBuff, 0, sizeof(sizeBuff));
 }
 
 void getFiles() {

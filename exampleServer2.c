@@ -124,7 +124,7 @@ int main() {
     //-----------------------------
     //-----8. Close the socket-----
     //-----------------------------
-    //close(tcp_server_socket);
+    close(tcp_server_socket);
 
     return 0;
 }

@@ -77,9 +77,9 @@ int main() {
     checkFileExists("GET /index.html dadf");
     checkFileExists("GET /nope.html estsd");
     printf("Server started, waiting for connection...\n");
+    tcp_client_socket = accept(tcp_server_socket, NULL, NULL); 
+    printf("Connection successfully made.\n");
     while(1) {
-        tcp_client_socket = accept(tcp_server_socket, NULL, NULL); 
-        printf("Connection successfully made.\n");
 
         //-----------------------------
         //-----7. Send data stream-----
@@ -99,14 +99,12 @@ int main() {
             printf("size of RH: %d\n", sizeof(responseHeader));
             send(tcp_client_socket, responseHeader, sizeof(responseHeader), 0);
         }
-        //send(tcp_client_socket, tcp_server_message, sizeof(tcp_server_message), 0);
-        close(tcp_server_socket);
     }
 
     //-----------------------------
     //-----8. Close the socket-----
     //-----------------------------
-    //close(tcp_server_socket);
+    close(tcp_server_socket);
 
     return 0;
 }

@@ -11,6 +11,7 @@
 #include "exampleServer.h"
 
 char responseHeader[1024] = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: 59\n\n";
+char data[1024];
 char files[256][256];
 int numFiles = 0;
 
@@ -76,6 +77,7 @@ int main() {
 
     checkFileExists("GET /index.html dadf");
     checkFileExists("GET /nope.html estsd");
+    readFile("index.html");
     printf("Server started, waiting for connection...\n");
     tcp_client_socket = accept(tcp_server_socket, NULL, NULL); 
     printf("Connection successfully made.\n");
@@ -113,13 +115,14 @@ void readFile(char *fileName) {
     FILE *fin;
     fin = fopen(fileName, "r");
     //fin = fopen("index.html", "r");
-    
+    strcat(data, responseHeader);
     char ch;
     int byteSize = 0;
     while((ch = fgetc(fin)) != EOF) {
         ++byteSize;
-        strncat(responseHeader, &ch, 1);
+        strncat(data, &ch, 1);
     }
+    printf("responseHeader: %s\n", responseHeader);
     printf("bytesize = %d\n", byteSize);
 }
 

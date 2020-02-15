@@ -6,7 +6,8 @@
 #include <sys/types.h>      //more definitions
 #include <netinet/in.h>     //Structures to store address information
 int main() {    
-    char tcp_server_message[256] = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
+    char tcp_server_message[256] = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: 36\n\n<body>\n<h1> HEADING </h1>\n</body>\n\n";
+    //char tcp_server_message[256] = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 59\n\n<!DOCTPYE html>\n<html>\n<body>\n<h1> HEADING </h1>\n</body>\n\n";
     //char tcp_server_message[256] = " Hello, I am the TCP Server you successfully connected to!! \n\n               Bye Bye!!!\n\n";
 
     //----------------------------------

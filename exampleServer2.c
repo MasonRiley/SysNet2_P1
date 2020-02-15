@@ -34,6 +34,10 @@ int main() {
      *         Type of socket stream (TCP)
      *         Protocol (default, 0 for TCP) */ 
     tcp_server_socket = socket(AF_INET, SOCK_STREAM, 0); 
+    
+    fd_set active_fd_set, read_fd_set;
+    FD_ZERO (&active_fd_set);
+    FD_SET(tcp_server_socket, &active_fd_set);
 
     //--------------------------------------
     //-----4. Define the server address-----
@@ -78,29 +82,43 @@ int main() {
     checkFileExists("GET /nope.html estsd");
     printf("Server started, waiting for connection...\n");
     while(1) {
-        tcp_client_socket = accept(tcp_server_socket, NULL, NULL); 
-        printf("Connection successfully made.\n");
-
-        //-----------------------------
-        //-----7. Send data stream-----
-        //-----------------------------
-
-        /* Params: Send where
-         *         Send what
-         *         How much
-         *         Flags (optional) */
-        char buff[30000] = {0};
-        long valread = read(tcp_client_socket, buff, 30000);
-        printf("%s\n", buff);
-        
-        if(valread > 0 && (checkFileExists(buff)) != -1) {
-            readFile("example");
-            printf("responseHeader: %s\n", responseHeader);
-            printf("size of RH: %d\n", sizeof(responseHeader));
-            send(tcp_client_socket, responseHeader, sizeof(responseHeader), 0);
+        read_fd_set = active_fd_set;
+        if((select(FD_SETSIZE, &read_fd_set, NULL, NULL, NULL)) < 0) {
+            printf("ERROR\n");
         }
-        //send(tcp_client_socket, tcp_server_message, sizeof(tcp_server_message), 0);
-        close(tcp_server_socket);
+
+        int i;
+        for(i = 0; i < FD_SETSIZE; ++i) {
+            if(FD_ISSET(i, &read_fd_set)) {
+                if(i == tcp_server_socket) {
+                    tcp_client_socket = accept(tcp_server_socket, NULL, NULL); 
+                    printf("Server: connect from host %s, port %hd.\n", inet_ntoa(socketaddr_in.sin_addr),
+                            ntohs(socketaddr_in.sin_port));
+                    FD_SET(tcp_server_socket, &active_fd_set);
+                }
+                else {
+
+                    //-----------------------------
+                    //-----7. Send data stream-----
+                    //-----------------------------
+
+                    /* Params: Send where
+                     *         Send what
+                     *         How much
+                     *         Flags (optional) */
+                    char buff[30000] = {0};
+                    long valread = read(tcp_client_socket, buff, 30000);
+                    printf("%s\n", buff);
+                    
+                    if((checkFileExists(buff)) != -1) {
+                        readFile("example");
+                        printf("responseHeader: %s\n", responseHeader);
+                        printf("size of RH: %d\n", sizeof(responseHeader));
+                        send(tcp_client_socket, responseHeader, sizeof(responseHeader), 0);
+                    }
+                }
+            }
+        }
     }
 
     //-----------------------------

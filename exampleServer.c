@@ -114,7 +114,7 @@ int main() {
 
 void readFile(char *fileName) { 
     char ch;
-    char dataBuff[1024];
+    char dataBuff[1024] = "";
     char sizeBuff[10];
     FILE *fin;
     fin = fopen(fileName, "r");

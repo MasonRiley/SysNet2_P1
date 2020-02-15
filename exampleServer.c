@@ -123,7 +123,6 @@ void readFile(char *fileName) {
         ++byteSize;
         strncat(dataBuff, &ch, 1);
     }
-    //itoa(byteSize, sizeBuff, 10);
     sprintf(sizeBuff, "%d", byteSize);
     strcat(sizeBuff, "\n\n");
     strcat(data, responseHeader);
@@ -131,8 +130,8 @@ void readFile(char *fileName) {
     strcat(data, dataBuff);
     printf("data: %s\n", data);
     printf("bytesize = %d\n", byteSize);
-    memset(dataBuff, 0, sizeof(dataBuff));
-    memset(sizeBuff, 0, sizeof(sizeBuff));
+    memset(dataBuff, '\0', sizeof(dataBuff));
+    memset(sizeBuff, '\0', sizeof(sizeBuff));
 }
 
 void getFiles() {

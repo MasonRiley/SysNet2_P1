@@ -1,15 +1,24 @@
-//Basic TCP Client: socket() creation > connect() > receive() > display > close
+/** 
+ * client.c: This program runs a client which connects to a running server.
+ * It creates the socket, connects to the server, receives data, displays
+ * the data, and then closes the connection.
+ *
+ * Author(s): Mason Riley, Cesar Santiago
+ * Project #: 1
+ * Last Updated: 2/15/2020
+ */
+
 #include <stdio.h>          //Standard library
 #include <stdlib.h>         //Standard library
 #include <sys/socket.h>     //API and definitions for the sockets
 #include <sys/types.h>      //more definitions
 #include <netinet/in.h>     //Structures to store address information
-#include <string.h>
+#include <string.h>         //String methods
 
 int main(){    
-    //---------------------------------
-    //-----Creating the TCP socket-----
-    //---------------------------------
+    //------------------------------------
+    //-----1. Creating the TCP socket-----
+    //------------------------------------
 
     // Socket descriptor
     int tcp_client_socket;        
@@ -20,9 +29,9 @@ int main(){
      *         TCP protocol (default) */
     tcp_client_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-    //-------------------------------------------------------
-    //-----Specify address and port of the remote socket-----
-    //-------------------------------------------------------
+    //----------------------------------------------------------
+    //-----2. Specify address and port of the remote socket-----
+    //----------------------------------------------------------
     
     // Declaring a structure for the address    
     struct sockaddr_in tcp_server_address;             
@@ -37,9 +46,9 @@ int main(){
     // Connecting to 0.0.0.0
     tcp_server_address.sin_addr.s_addr = INADDR_ANY;       
     
-    //-----------------------------------------
-    //-----Connecting to the remote socket-----
-    //-----------------------------------------
+    //--------------------------------------------
+    //-----3. Connecting to the remote socket-----
+    //--------------------------------------------
 
     /* Params: Which socket 
      *         Cast for address to the specific structure type 
@@ -62,14 +71,14 @@ int main(){
      *         Flags (0) */
     recv(tcp_client_socket, &tcp_server_response, sizeof(tcp_server_response), 0); 
     
-    //---------------------------------------------
-    //-----Output, as received from the server-----
-    //---------------------------------------------
+    //------------------------------------------------
+    //-----4. Output, as received from the server-----
+    //------------------------------------------------
     printf("\n\n Server says: %s \n", tcp_server_response);    
     
-    //----------------------
-    //-----Close socket-----
-    //----------------------
+    //-------------------------
+    //-----5. Close socket-----
+    //-------------------------
     close(tcp_client_socket);    
     return 0;
 }

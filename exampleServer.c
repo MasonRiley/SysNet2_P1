@@ -15,7 +15,7 @@ char files[256][256];
 int numFiles = 0;
 
 int main() {    
-    char tcp_server_message[256] = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: 59\n\n<!DOCTPYE html>\n<html>\n<body>\n<h1> HEADING </h1>\n</body>\n\n";
+    //char tcp_server_message[256] = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: 59\n\n<!DOCTPYE html>\n<html>\n<body>\n<h1> HEADING </h1>\n</body>\n\n";
 
     //-----------------------------------------
     //-----1. Get list of all files in cwd-----
@@ -92,9 +92,9 @@ int main() {
         char buff[30000] = {0};
         long valread = read(tcp_client_socket, buff, 30000);
         printf("%s\n", buff);
-        
-        if(valread > 0 && (checkFileExists(buff)) != -1) {
-            readFile("example");
+        int fileIndex = checkFileExists(buff);
+        if(valread > 0 && fileIndex != -1) {
+            readFile(files[fileIndex]);
             printf("responseHeader: %s\n", responseHeader);
             printf("size of RH: %d\n", sizeof(responseHeader));
             send(tcp_client_socket, responseHeader, sizeof(responseHeader), 0);
@@ -111,8 +111,8 @@ int main() {
 
 void readFile(char *fileName) {
     FILE *fin;
-    //fin = fopen(fileName, "r");
-    fin = fopen("index.html", "r");
+    fin = fopen(fileName, "r");
+    //fin = fopen("index.html", "r");
     
     char ch;
     int byteSize = 0;

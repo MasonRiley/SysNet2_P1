@@ -1,5 +1,5 @@
-#ifndef DEF_EXAMPLESERVER
-#define DEF_EXAMPLESERVER
+#ifndef DEF_SERVER
+#define DEF_SERVER
 
 void readFile(char *fileName);
 

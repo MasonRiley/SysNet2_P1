@@ -7,10 +7,10 @@ DEPS =
 all: Client Server
 
 Client: exampleClient.c
-	$(CC) -o Client exampleClient.c
+	$(CC) -o Client client.c
 
 Server: exampleServer.c  	
-	$(CC) -o Server exampleServer.c 
+	$(CC) -o Server server.c 
 
 clean:
 	rm -rf *.o Server Client

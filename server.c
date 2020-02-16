@@ -122,7 +122,8 @@ int main() {
         int fileIndex = checkFileExists(buff);
         if(fileIndex != -1 && valread > 0) {
             //If so, retrieve file data and format response header appropriately 
-            //readTextFile(files[fileIndex]);
+            
+            readTextFile(files[fileIndex]);
             readImageFile(files[fileIndex]);
             //Then send formatted response back to client 
             send(tcp_client_socket, data, sizeof(data), 0);
@@ -173,7 +174,9 @@ void readImageFile(char *fileName) {
     char ch;
     FILE *fin;
     struct stat fileStats;
-    int size, fd;
+    char size[7];
+    int fd;
+printf("step 1\n");
     fd = open(fileName, O_RDONLY);
     fstat(size, &fileStats);
     sprintf(size, "%zd", fileStats.st_size);

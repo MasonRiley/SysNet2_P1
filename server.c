@@ -11,6 +11,9 @@
 #include <stdlib.h>         //Standard library
 #include <sys/socket.h>     //API and definitions for the sockets
 #include <sys/types.h>      //more definitions
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <netinet/in.h>     //Structures to store address information
 #include <unistd.h>         //Defines misc. symbolic constants and types
 #include <string.h>         //String methods
@@ -20,7 +23,7 @@
 #include "standards.h"
 
 const char* responseHeader = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: ";
-const char* imgResponseHeader = "HTTP/1.1 200 OK\nContent-Type: image/png\nContent-Length: ";
+const char* imageResponseHeader = "HTTP/1.1 200 OK\nContent-Type: image/png\nContent-Length: ";
 char data[DataSize];
 char img[DataSize];
 char files[256][256];
@@ -168,13 +171,13 @@ void readTextFile(char *fileName) {
 
 void readImageFile(char *fileName) {
     char ch;
-    FILE *fin
+    FILE *fin;
     struct stat fileStats;
     int size, fd;
     fd = open(fileName, O_RDONLY);
     fstat(size, &fileStats);
     sprintf(size, "%zd", fileStats.st_size);
-    fin = fopen(filename, "r");
+    fin = fopen(fileName, "r");
     strcat(data, imageResponseHeader);
     strcat(data, size);
     strcat(data, "\n\n");

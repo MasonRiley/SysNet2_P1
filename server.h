@@ -11,7 +11,7 @@
  */
 void readTextFile(char *fileName);
 
-int readImageFile(char *fileName);
+void readImageFile(char *fileName);
 
 /**
  * getFiles: Reads in every file in the cwd and stores their names in

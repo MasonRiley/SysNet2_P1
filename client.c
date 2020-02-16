@@ -21,6 +21,8 @@
 
 int main(){    
     
+    int end = 0;
+    
     // Creating the TCP socket
     int tcp_client_socket; // Socket descriptor       
     tcp_client_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -38,25 +40,45 @@ int main(){
     // Connection uses localhost
     tcp_server_address.sin_addr.s_addr = INADDR_ANY;       
     
-    // Connecting to the remote socket
-    int connection_status = connect(tcp_client_socket, 
-            (struct sockaddr *) &tcp_server_address, sizeof(tcp_server_address));         
-
-    // Return value of 0 means all okay, -1 means a problem        
-    if (connection_status == -1){                                                  
-        printf("ERROR: Problem connecting to the socket.\n");     
-    }  
-    
     // Send data to server
-    char *test = "GET /index.html /HTML1.1";
-    send(tcp_client_socket, test, strlen(test), 0);
     char tcp_server_response[DATA_SIZE];    
+    char req[20];
+    char temp[BUFFER_SIZE];
+    memset(temp, 0, BUFFER_SIZE);
+    memset(req, 0, 20);
+
+    while(end == 0)
+    {
+        // Connecting to the remote socket
+        int connection_status = connect(tcp_client_socket, 
+                (struct sockaddr *) &tcp_server_address, sizeof(tcp_server_address));         
+
+        // Return value of 0 means all okay, -1 means a problem        
+        if (connection_status == -1){                                                  
+            printf("ERROR: Problem connecting to the socket.\n");     
+        }
+
+        printf("Connection to the server achieved.\n");
+        printf("Enter a file name to request:\n");
+        scanf("%s", req);
+
+        strcat(temp, "GET /");
+        strcat(temp, req);
+        strcat(temp, " /HTML1.1");
+
+        printf("%s", temp);
+
+        send(tcp_client_socket, temp, strlen(temp), 0);
+        memset(temp, 0, BUFFER_SIZE);
+
+        // Receive data from server and print it
+        recv(tcp_client_socket, &tcp_server_response, sizeof(tcp_server_response), 0); 
+        printf("\n\nServer says: %s \n", tcp_server_response);    
+
+        // Close socket 
+        close(tcp_client_socket);    
+    }
     
-    // Receive data from server and print it
-    recv(tcp_client_socket, &tcp_server_response, sizeof(tcp_server_response), 0); 
-    printf("\n\nServer says: %s \n", tcp_server_response);    
    
-    // Close socket 
-    close(tcp_client_socket);    
     return 0;
 }

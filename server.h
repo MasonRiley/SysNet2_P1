@@ -29,4 +29,8 @@ void getFiles();
  */
 int checkFileExists(char *buff);
 
+char* contentType(char* request);
+
+char* parseRequest(char* request);
+
 #endif

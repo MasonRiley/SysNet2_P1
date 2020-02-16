@@ -23,8 +23,13 @@
 #include "server.h"
 #include "standards.h"      // Contains constants used in both server.c and client.c
 
+// Content type constants
 #define IMAGE 1
 #define HTML 2
+
+// User agent constants
+#define CHROME 1
+#define FIREFOX 2
 
 char response[DATA_SIZE]; // Stores the entire response including header & payload
 char files[256][256]; // Stores names of all files in cwd
@@ -84,7 +89,6 @@ int main() {
         if(fileIndex != -1 && valread > 0) {
             // If exists then determine file type, 
             // format data stream, and send it to client
-            printf("Entered if\n"); 
             if(contentType(buff) == HTML) {
                 // Read in HTML data
                 printf("Reading in HTML file data...\n");
@@ -116,6 +120,7 @@ int main() {
             readErrorFile("404.html");
             printf("RESPONSE:\n%s\n", response);
             send(tcp_client_socket, response, sizeof(response), 0);
+
         }
         printf("--------END SERVER RESPONSE--------\n\n");
         
@@ -124,6 +129,9 @@ int main() {
         memset(response, 0, sizeof(response));
         fileIndex = 0;
         valread = 0;
+
+        // Close client socket
+        close(tcp_client_socket);
     }
     
     // Close the socket once done
@@ -290,16 +298,11 @@ int checkFileExists(char *buff) {
  * @Params request The string of the request.
  * @Return int Whether it is a png or an html request.
  */
-int contentType(char* request)
-{
+int contentType(char* request) {
     if(strstr(request, ".png")!= NULL)
-    {
-        return 1;
-    }
+        return IMAGE;
     else if(strstr(request, ".html")!=NULL);
-    {
-        return 2;
-    }
+        return HTML;
     return -1;
 }
 

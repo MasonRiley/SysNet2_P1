@@ -37,6 +37,8 @@ int checkFileExists(char *buff);
  * @Params request The string of the request.
  * @Return int Whether it is a png or an html request.
  */
-int contentType(char* request);
+int contentType(char *request);
+
+int getUserAgent(char *request);
 
 #endif

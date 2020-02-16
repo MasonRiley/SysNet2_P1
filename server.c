@@ -93,6 +93,7 @@ int main() {
     checkFileExists("GET /nope.html estsd");
     readTextFile("index.html");
     */
+    readImageFile("images.html");
     /*~~~~~~~~~~~~~~HERE ARE TESTS~~~~~~~~~~~~~~~~~*/
 
     while(1) {
@@ -181,12 +182,13 @@ void readImageFile(char *fileName) {
     char size[7];
     int fd;
     fd = open(fileName, O_RDONLY);
-    fstat(size, &fileStats);
+    fstat(fd, &fileStats);
     sprintf(size, "%zd", fileStats.st_size);
     fin = fopen(fileName, "r");
     strcat(data, imageResponseHeader);
     strcat(data, size);
     strcat(data, "\n\n");
+    printf("DATA = %s\n", data);
     memset(img, 0, sizeof(img));
     fread(img, sizeof(char), size + 1, fin);
     fclose(fin);

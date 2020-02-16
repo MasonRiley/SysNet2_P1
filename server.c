@@ -24,6 +24,7 @@
 
 const char* responseHeader = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: ";
 const char* imageResponseHeader = "HTTP/1.1 200 OK\nContent-Type: image/png\nContent-Length: ";
+const char* errorHeader = "HTTP/1.1 400 Bad Request\n";
 char data[DataSize];
 char img[DataSize];
 char files[256][256];
@@ -93,12 +94,12 @@ int main() {
     checkFileExists("GET /nope.html estsd");
     readTextFile("index.html");
     */
-    readImageFile("images.html");
     /*~~~~~~~~~~~~~~HERE ARE TESTS~~~~~~~~~~~~~~~~~*/
 
     while(1) {
         // Server socket to interact with client, structure like before - if 
         // you know - else NULL for local connection
+        printf("Waiting for a connection...\n");
         int tcp_client_socket;
         tcp_client_socket = accept(tcp_server_socket, NULL, NULL); 
         printf("Connection successfully made.\n");
@@ -124,15 +125,23 @@ int main() {
             //If so, retrieve file data and format response header appropriately 
             //Then send formatted response back to client 
             if(contentType(buff) == 2) {
+                printf("Reading in data...\n");
                 readTextFile(files[fileIndex]);
+                printf("Data successsfully read.\nSending data...\n");
                 send(tcp_client_socket, data, sizeof(data), 0);
+                printf("Data successfully sent\n");
             }
             else if(contentType(buff) == 1) {
                 readImageFile(files[fileIndex]);
                 send(tcp_client_socket, data, sizeof(data), 0);
                 send(tcp_client_socket, img, sizeof(img), 0);
             }
+            else {
+                send(tcp_client_socket, errorHeader, sizeof(errorHeader), 0); 
+            }
         }
+        fileIndex = 0;
+        valread = 0;
     }
 
     //-----------------------------

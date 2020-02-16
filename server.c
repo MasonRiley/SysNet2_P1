@@ -238,15 +238,15 @@ int checkFileExists(char *buff) {
     return -1;
 }
 
-char* contentType(char* request)
+int contentType(char* request)
 {
     if(strstr(request, ".png")!= NULL)
     {
-        return "image/png";
+        return 1;
     }
     else if(strstr(request, ".html")!=NULL);
     {
-        return "text/html";
+        return 2;
     }
 }
 
@@ -268,3 +268,4 @@ char* parseRequest(char* request)
     }
     return filename;//Return 0 for size of zero if no file name could be parsed.
 }
+

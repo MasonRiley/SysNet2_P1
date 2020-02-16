@@ -2,14 +2,14 @@
 #define DEF_SERVER
 
 /**
- * readTextFile: Reads in the contents of a file one character at a time,
+ * readHTMLFile: Reads in the contents of a file one character at a time,
  * storing the results in dataBuff. Counts the number of chars for
  * Content-Length. Then concatenates the pre-formatted response header
  * (see line 19), the determined content-length, and the file data to
  * send to the client.
  * @Params fileName The name of the file being read in.
  */
-void readTextFile(char *fileName);
+void readHTMLFile(char *fileName);
 
 void readImageFile(char *fileName);
 

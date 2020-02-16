@@ -71,20 +71,19 @@ int main() {
         printf("Waiting for a connection...\n");
         int tcp_client_socket;
         tcp_client_socket = accept(tcp_server_socket, NULL, NULL); 
-        printf("Connection successfully made.\n");
+        printf("Connection successfully made.\n\n");
 
         // Receive requests from client
         valread = read(tcp_client_socket, buff, BUFFER_SIZE);
-        printf("-----CLIENT REQUEST-----:\n%s\n", buff);
-        printf("-----END CLIENT REQUEST-----\n\n\n");
+        printf("-----------CLIENT REQUEST----------\n%s\n", buff);
+        printf("---------END CLIENT REQUEST--------\n\n");
 
-        printf("-----SERVER RESPONSE-----\n");
+        printf("----------SERVER RESPONSE----------\n");
         // Determine if requested file exists
         int fileIndex = checkFileExists(buff);
         if(fileIndex != -1 && valread > 0) {
             // If exists then determine file type, 
             // format data stream, and send it to client
-            printf("Sending HTTP 200: OK\n");
             
             if(contentType(buff) == HTML) {
                 // Read in HTML data
@@ -93,7 +92,7 @@ int main() {
                 printf("...HTML file data successfully read.\n");
 
                 // Send HTML data
-                printf("Sending HTML file data to client...\n");
+                printf("Sending HTML file data to client...\n\n");
                 printf("RESPONSE:\n%s\n", response);
                 send(tcp_client_socket,response, sizeof(response), 0);
                 printf("...HTML file data successfully sent.\n");
@@ -105,7 +104,7 @@ int main() {
                 printf("...Image data successfully read.\n");
 
                 // Send image data
-                printf("Sending image data to client...\n");
+                printf("Sending image data to client...\n\n");
                 printf("RESPONSE:\n%s\n", response);
                 send(tcp_client_socket, response, sizeof(response), 0);
                 printf("...Image data successfully sent.\n");
@@ -113,12 +112,12 @@ int main() {
         }
         else {
             // If not exists, then send 404 along with the 404 page
-	        printf("Sending HTTP 404: Not Found\n");
+	        printf("ERROR: HTTP 404: Not Found\n\n");
             readErrorFile("404.html");
             printf("RESPONSE:\n%s\n", response);
             send(tcp_client_socket, response, sizeof(response), 0);
         }
-        printf("-----END SERVER RESPONSE-----\n\n\n");
+        printf("--------END SERVER RESPONSE--------\n\n");
         
         // Reset all values for safety 
         memset(buff, 0, BUFFER_SIZE);

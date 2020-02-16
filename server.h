@@ -31,8 +31,12 @@ void getFiles();
  */
 int checkFileExists(char *buff);
 
+/**
+ * contentType: Takes in a request string and detemines from it if the
+ * server needs to return an image or a text file.
+ * @Params request The string of the request.
+ * @Return int Whether it is a png or an html request.
+ */
 int contentType(char* request);
-
-char* parseRequest(char* request);
 
 #endif

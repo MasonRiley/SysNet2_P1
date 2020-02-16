@@ -284,6 +284,12 @@ int checkFileExists(char *buff) {
     return -1;
 }
 
+/**
+ * contentType: Takes in a request string and detemines from it if the
+ * server needs to return an image or a text file.
+ * @Params request The string of the request.
+ * @Return int Whether it is a png or an html request.
+ */
 int contentType(char* request)
 {
     if(strstr(request, ".png")!= NULL)
@@ -296,24 +302,4 @@ int contentType(char* request)
     }
     return -1;
 }
-
-/*
-char* parseRequest(char* request)
-{
-    char ch;
-    int i, nameSize = 0;
-    int reqSize =strlen(request);
-    char* filename = "";
-    for(i = 0; i < reqSize && ch != '/'; i++)
-    {
-        ch = request[i];
-    }
-    while(ch != ' ')
-    {
-        strncat(filename, &ch, 1);
-        ch = request[i];
-        nameSize++;
-    }
-    return filename;//Return 0 for size of zero if no file name could be parsed.
-}*/
 

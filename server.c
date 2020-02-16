@@ -23,7 +23,8 @@
 #include "standards.h"
 
 const char* responseHeader = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: ";
-const char* imageResponseHeader = "HTTP/1.1 200 OK\nContent-Type: image/apng\nContent-Transfer-Encoding: binary\nContent-Length: ";
+char* responseHeader2 = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: %d\n\n";
+char* imageResponseHeader = "HTTP/1.1 200 OK\nContent-Type: image/png\nContent-Length: %lu\n\n";
 const char* errorHeader = "HTTP/1.1 404 Not Found\n";
 char data[DataSize];
 unsigned char *img;
@@ -132,12 +133,8 @@ int main() {
                 printf("Data successfully sent\n");
             }
             else if(contentType(buff) == 1) {
-                int size = readImageFile(files[fileIndex]) + 1;
-                printf("Sending data...\n");
+                readImageFile(files[fileIndex]);
                 send(tcp_client_socket, data, sizeof(data), 0);
-                printf("Data successfully sent.\nSending image...\n");
-                //send(tcp_client_socket, img, size, 0);
-                printf("Image sent\n");
             }
             else {
                 send(tcp_client_socket, errorHeader, sizeof(errorHeader), 0); 
@@ -173,49 +170,56 @@ void readTextFile(char *fileName) {
     char dataBuff[DataSize] = "";
     char sizeBuff[10];
     FILE *fin;
+
+    // Open html file, read each character into dataBuff, and track size
     fin = fopen(fileName, "r");
     int byteSize = 0;
     while((ch = fgetc(fin)) != EOF) {
         ++byteSize;
         strncat(dataBuff, &ch, 1);
     }
-    sprintf(sizeBuff, "%d", byteSize);
+    
+    /*sprintf(sizeBuff, "%d", byteSize);
     strcat(sizeBuff, "\n");
     strcat(data, responseHeader);
     strcat(data, sizeBuff);
-    strcat(data, "Connection: keep-alive\n\n");
+    strcat(data, "Connection: keep-alive\n\n");*/
+
+    // Copy appropriate header into 'data', then the data to be sent
+    snprintf(data, sizeof(data), responseHeader2, byteSize);
     strcat(data, dataBuff);
-    printf("data: %s\n", data);
-    printf("bytesize = %d\n", byteSize);
+    
+    // Reset dataBuff
     memset(dataBuff, '\0', sizeof(dataBuff));
-    memset(sizeBuff, '\0', sizeof(sizeBuff));
+    
+    // Close the file
     fclose(fin);
 }
 
-int readImageFile(char *fileName) {
+void readImageFile(char *fileName) {
     FILE *fin;
     struct stat fileStats;
     char size[7];
-    int fd = open(fileName, O_RDONLY);
+    int fd, headerLen;
+
+    // Get size of image and open it
+    fd = open(fileName, O_RDONLY);
     fstat(fd, &fileStats);
-    int test = sprintf(size, "%zd", fileStats.st_size);
-    printf("FILE NAME = %s\n", fileName);
     fin = fopen(fileName, "rb");
-    strcat(data, imageResponseHeader);
-    strcat(data, size);
-    strcat(data, "\n\n");
-    //strcat(data, "Content-Transfer-Encoding: binary\n\n");
-    //strcat(data, "Connection: keep-alive\n\n");
-    //memset(img, 0, sizeof(img));
-    img = malloc(10469); //LATEST CHANGE
-    size_t aNumber = fread(img, sizeof(char), fileStats.st_size + 1, fin); //ANOTHER CHANGE
-    memcpy(data + test, img, aNumber);
-    printf("--------DATA--------\n%s\n", data);
-    printf("size of img = %lu\n", sizeof(img));
-    test = snprintf(data, sizeof(data), "HTTP/1.1 200 OK\nContent-Type: image/png\nContent-Length: 10469\n\n");
-    memcpy(data + test, img, 10469);
+    //strcat(data, imageResponseHeader);
+    //strcat(data, size);
+    //strcat(data, "\n\n");
+
+    // Read image into 'img
+    img = malloc(fileStats.st_size);
+    fread(img, sizeof(char), fileStats.st_size, fin);
+
+    // Copy appropriate header into 'data', then memcpy image data into it
+    headerLen = snprintf(data, sizeof(data), imageResponseHeader, fileStats.st_size);
+    memcpy(data + headerLen, img, fileStats.st_size);
+
+    //Close file
     fclose(fin);
-    return aNumber; //return fileStats.st_size
 }
 
 /**

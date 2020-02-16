@@ -96,13 +96,12 @@ int main() {
     readImageFile("images.html");
     /*~~~~~~~~~~~~~~HERE ARE TESTS~~~~~~~~~~~~~~~~~*/
 
-    int tcp_client_socket;
-    tcp_client_socket = accept(tcp_server_socket, NULL, NULL); 
-    printf("Connection successfully made.\n");
     while(1) {
-
         // Server socket to interact with client, structure like before - if 
         // you know - else NULL for local connection
+        int tcp_client_socket;
+        tcp_client_socket = accept(tcp_server_socket, NULL, NULL); 
+        printf("Connection successfully made.\n");
 
 
         //-----------------------------

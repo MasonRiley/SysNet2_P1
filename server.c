@@ -132,6 +132,7 @@ int main() {
                 printf("Data successfully sent\n");
             }
             else if(contentType(buff) == 1) {
+                printf("FINALLY GOT HERE\n");
                 readImageFile(files[fileIndex]);
                 send(tcp_client_socket, data, sizeof(data), 0);
                 send(tcp_client_socket, img, sizeof(img), 0);
@@ -140,6 +141,10 @@ int main() {
                 send(tcp_client_socket, errorHeader, sizeof(errorHeader), 0); 
             }
         }
+        else {
+            send(tcp_client_socket, errorHeader, sizeof(errorHeader), 0);
+        }
+        
         fileIndex = 0;
         valread = 0;
     }
@@ -264,6 +269,7 @@ int contentType(char* request)
     {
         return 2;
     }
+    return -1;
 }
 
 char* parseRequest(char* request)

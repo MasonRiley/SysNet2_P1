@@ -172,7 +172,6 @@ void getFiles() {
     directory = opendir(".");
     if(directory) {
         while((file = readdir(directory)) != NULL) {
-            //files[numFiles][0] = '/';
             strcat(files[numFiles], file->d_name);
             printf("%s\n", files[numFiles]);
             ++numFiles;
@@ -215,20 +214,33 @@ int checkFileExists(char *buff) {
     return -1;
 }
 
-int parseRequest(char* request, int reqSize, char* fileName)
+char* contentType(char* request)
+{
+    if(strstr(request, ".png")!= NULL)
+    {
+        return "image/png";
+    }
+    else if(strstr(request, ".html")!=NULL);
+    {
+        return "text/html";
+    }
+}
+
+char* parseRequest(char* request)
 {
     char ch;
     int i, nameSize = 0;
-    
+    int reqSize =strlen(request);
+    char* filename = "";
     for(i = 0; i < reqSize && ch != '/'; i++)
     {
         ch = request[i];
     }
     while(ch != ' ')
     {
+        strncat(filename, &ch, 1);
         ch = request[i];
-        fileName[i++] = ch;
         nameSize++;
     }
-    return nameSize;//Return 0 for size of zero if no file name could be parsed.
+    return filename;//Return 0 for size of zero if no file name could be parsed.
 }

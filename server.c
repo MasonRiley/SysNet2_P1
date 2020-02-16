@@ -26,7 +26,7 @@ const char* responseHeader = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=
 const char* imageResponseHeader = "HTTP/1.1 200 OK\nContent-Type: image/png\nContent-Length: ";
 const char* errorHeader = "HTTP/1.1 400 Bad Request\n";
 char data[DataSize];
-char img[DataSize];
+unsigned char img[DataSize];
 char files[256][256];
 int numFiles = 0;
 
@@ -134,6 +134,7 @@ int main() {
             else if(contentType(buff) == 1) {
                 printf("FINALLY GOT HERE\n");
                 int size = readImageFile(files[fileIndex]);
+                printf("size = %d\n", size);
                 send(tcp_client_socket, data, sizeof(data), 0);
                 sleep(1);
                 send(tcp_client_socket, img, size, 0);
@@ -178,9 +179,10 @@ void readTextFile(char *fileName) {
         strncat(dataBuff, &ch, 1);
     }
     sprintf(sizeBuff, "%d", byteSize);
-    strcat(sizeBuff, "\n\n");
+    strcat(sizeBuff, "\n");
     strcat(data, responseHeader);
     strcat(data, sizeBuff);
+    strcat(data, "Connection: keep-alive\n\n");
     strcat(data, dataBuff);
     printf("data: %s\n", data);
     printf("bytesize = %d\n", byteSize);
@@ -197,12 +199,13 @@ int readImageFile(char *fileName) {
     fd = open(fileName, O_RDONLY);
     fstat(fd, &fileStats);
     sprintf(size, "%zd", fileStats.st_size);
-    fin = fopen(fileName, "r");
+    fin = fopen(fileName, "rb");
     strcat(data, imageResponseHeader);
     strcat(data, size);
     strcat(data, "\n");
+    strcat(data, "Content-Transfer-Encoding: binary\n");
     strcat(data, "Connection: keep-alive\n\n");
-    //strcat(data, "\n\n");
+    //strcat(data, "\n\n";
     printf("DATA = %s\n", data);
     //memset(img, 0, sizeof(img));
     fread(img, sizeof(char), fileStats.st_size + 1, fin);

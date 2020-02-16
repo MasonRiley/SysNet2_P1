@@ -84,7 +84,7 @@ int main() {
         if(fileIndex != -1 && valread > 0) {
             // If exists then determine file type, 
             // format data stream, and send it to client
-            
+            printf("Entered if\n"); 
             if(contentType(buff) == HTML) {
                 // Read in HTML data
                 printf("Reading in HTML file data...\n");
@@ -257,27 +257,29 @@ int checkFileExists(char *buff) {
     const int OFFSET = 5; //The first 5 characters of a request are 'GET /' 
     int i = 0;
     char fileName[256];
-    char ch = buff[i + OFFSET];
+    printf("size of buffer = %d\n", strlen(buff));
+    if((strlen(buff)) > 0) {
+        char ch = buff[i + OFFSET];
    
-    // If navigating to '/' 
-    if(ch == ' ') {
-        strcpy(fileName, "index.html");
-    }
-    // Otherwise, navigating to '/[value].html'
-    else {
-        while(ch != ' ') {
-            fileName[i++] = ch;
-            ch = buff[i + OFFSET];
+        // If navigating to '/' 
+        if(ch == ' ') {
+            strcpy(fileName, "index.html");
+        }
+        // Otherwise, navigating to '/[value].html'
+        else {
+            while(ch != ' ') {
+                fileName[i++] = ch;
+                ch = buff[i + OFFSET];
+            }
+        }
+     
+        for(i = 0; i < numFiles; ++i) {
+            if((strcmp(files[i], fileName)) == 0) {
+                memset(fileName, 0, sizeof(fileName));
+                return i;
+            }
         }
     }
- 
-    for(i = 0; i < numFiles; ++i) {
-        if((strcmp(files[i], fileName)) == 0) {
-            memset(fileName, 0, sizeof(fileName));
-            return i;
-        }
-    }
-
     memset(fileName, 0, sizeof(fileName));
     return -1;
 }

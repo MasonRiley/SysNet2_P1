@@ -20,7 +20,9 @@
 #include "standards.h"
 
 const char* responseHeader = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: ";
+const char* imgResponseHeader = "HTTP/1.1 200 OK\nContent-Type: image/png\nContent-Length: ";
 char data[DataSize];
+char img[DataSize];
 char files[256][256];
 int numFiles = 0;
 
@@ -86,7 +88,7 @@ int main() {
     /*
     checkFileExists("GET /index.html dadf");
     checkFileExists("GET /nope.html estsd");
-    readFile("index.html");
+    readTextFile("index.html");
     */
     /*~~~~~~~~~~~~~~HERE ARE TESTS~~~~~~~~~~~~~~~~~*/
 
@@ -117,10 +119,11 @@ int main() {
         int fileIndex = checkFileExists(buff);
         if(fileIndex != -1 && valread > 0) {
             //If so, retrieve file data and format response header appropriately 
-            readFile(files[fileIndex]);
-
+            //readTextFile(files[fileIndex]);
+            readImageFile(files[fileIndex]);
             //Then send formatted response back to client 
             send(tcp_client_socket, data, sizeof(data), 0);
+            send(tcp_client_socket, img, sizeof(img), 0);
         }
     }
 
@@ -133,14 +136,14 @@ int main() {
 }
 
 /**
- * readFile: Reads in the contents of a file one character at a time,
+ * readTextFile: Reads in the contents of a file one character at a time,
  * storing the results in dataBuff. Counts the number of chars for
  * Content-Length. Then concatenates the pre-formatted response header
  * (see line 19), the determined content-length, and the file data to
  * send to the client.
  * @Params fileName The name of the file being read in.
  */
-void readFile(char *fileName) { 
+void readTextFile(char *fileName) { 
     char ch;
     char dataBuff[DataSize] = "";
     char sizeBuff[10];
@@ -160,6 +163,24 @@ void readFile(char *fileName) {
     printf("bytesize = %d\n", byteSize);
     memset(dataBuff, '\0', sizeof(dataBuff));
     memset(sizeBuff, '\0', sizeof(sizeBuff));
+    fclose(fin);
+}
+
+void readImageFile(char *fileName) {
+    char ch;
+    FILE *fin
+    struct stat fileStats;
+    int size, fd;
+    fd = open(fileName, O_RDONLY);
+    fstat(size, &fileStats);
+    sprintf(size, "%zd", fileStats.st_size);
+    fin = fopen(filename, "r");
+    strcat(data, imageResponseHeader);
+    strcat(data, size);
+    strcat(data, "\n\n");
+    memset(img, 0, sizeof(img));
+    fread(img, sizeof(char), size + 1, fin);
+    fclose(fin);
 }
 
 /**

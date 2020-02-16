@@ -254,12 +254,10 @@ void getFiles() {
     if(directory) {
         while((file = readdir(directory)) != NULL) {
             strcat(files[numFiles], file->d_name);
-            printf("%s\n", files[numFiles]);
             ++numFiles;
         }
         closedir(directory);
     }
-    printf("NUMFILES = %d\n", numFiles);
 }
 
 /**

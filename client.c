@@ -15,6 +15,8 @@
 #include <netinet/in.h>     //Structures to store address information
 #include <unistd.h>         //Defines misc. symbolic constants and types
 #include <string.h>         //String methods
+#include "standards.h"
+
 
 int main(){    
     //------------------------------------
@@ -42,7 +44,7 @@ int main(){
     tcp_server_address.sin_family = AF_INET;
     
     // Specify and pass the port number to connect - converting in right network byte order    
-    tcp_server_address.sin_port = htons(39756);   
+    tcp_server_address.sin_port = htons(PortNumber);   
     
     // Connecting to 0.0.0.0
     tcp_server_address.sin_addr.s_addr = INADDR_ANY;       
@@ -62,7 +64,7 @@ int main(){
         printf(" Problem connecting to the socket! Sorry!! \n");     
     }  
 
-    char *test = "Hello from the client!\n";
+    char *test = "GET /index.html /HTML1.1";
     send(tcp_client_socket, test, strlen(test), 0);
     char tcp_server_response[256];    
 

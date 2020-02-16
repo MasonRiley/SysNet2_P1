@@ -26,7 +26,7 @@ const char* responseHeader = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=
 const char* imageResponseHeader = "HTTP/1.1 200 OK\nContent-Type: image/png\nContent-Length: ";
 const char* errorHeader = "HTTP/1.1 400 Bad Request\n";
 char data[DataSize];
-unsigned char img[DataSize];
+unsigned char img;
 char files[256][256];
 int numFiles = 0;
 
@@ -208,9 +208,11 @@ int readImageFile(char *fileName) {
     //strcat(data, "\n\n";
     printf("DATA = %s\n", data);
     //memset(img, 0, sizeof(img));
-    fread(img, sizeof(char), fileStats.st_size + 1, fin);
+    img = (char*) malloc(sizeof(char) * fileStats.st_size); //LATEST CHANGE
+    size_t aNumber = fread(img, 1, fileStats.st_size + 1, fin); //ANOTHER CHANGE
+    printf("aNumber = %d\n", aNumber);
     fclose(fin);
-    return fileStats.st_size;
+    return aNumber; //return fileStats.st_size
 }
 
 /**

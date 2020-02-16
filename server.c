@@ -23,10 +23,10 @@
 #include "standards.h"
 
 const char* responseHeader = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: ";
-const char* imageResponseHeader = "HTTP/1.1 200 OK\nContent-Type: image/png\nContent-Length: ";
-const char* errorHeader = "HTTP/1.1 400 Bad Request\n";
+const char* imageResponseHeader = "HTTP/1.1 200 OK\nContent-Type: image/apng\nContent-Transfer-Encoding: binary\nContent-Length: ";
+const char* errorHeader = "HTTP/1.1 404 Not Found\n";
 char data[DataSize];
-unsigned char img;
+unsigned char *img;
 char files[256][256];
 int numFiles = 0;
 
@@ -132,18 +132,19 @@ int main() {
                 printf("Data successfully sent\n");
             }
             else if(contentType(buff) == 1) {
-                printf("FINALLY GOT HERE\n");
-                int size = readImageFile(files[fileIndex]);
-                printf("size = %d\n", size);
+                int size = readImageFile(files[fileIndex]) + 1;
+                printf("Sending data...\n");
                 send(tcp_client_socket, data, sizeof(data), 0);
-                sleep(1);
-                send(tcp_client_socket, img, size, 0);
+                printf("Data successfully sent.\nSending image...\n");
+                //send(tcp_client_socket, img, size, 0);
+                printf("Image sent\n");
             }
             else {
                 send(tcp_client_socket, errorHeader, sizeof(errorHeader), 0); 
             }
         }
         else {
+	        printf("ERORR: Bad link found\n");
             send(tcp_client_socket, errorHeader, sizeof(errorHeader), 0);
         }
         
@@ -195,22 +196,24 @@ int readImageFile(char *fileName) {
     FILE *fin;
     struct stat fileStats;
     char size[7];
-    int fd;
-    fd = open(fileName, O_RDONLY);
+    int fd = open(fileName, O_RDONLY);
     fstat(fd, &fileStats);
-    sprintf(size, "%zd", fileStats.st_size);
+    int test = sprintf(size, "%zd", fileStats.st_size);
+    printf("FILE NAME = %s\n", fileName);
     fin = fopen(fileName, "rb");
     strcat(data, imageResponseHeader);
     strcat(data, size);
-    strcat(data, "\n");
-    strcat(data, "Content-Transfer-Encoding: binary\n");
-    strcat(data, "Connection: keep-alive\n\n");
-    //strcat(data, "\n\n";
-    printf("DATA = %s\n", data);
+    strcat(data, "\n\n");
+    //strcat(data, "Content-Transfer-Encoding: binary\n\n");
+    //strcat(data, "Connection: keep-alive\n\n");
     //memset(img, 0, sizeof(img));
-    img = (char*) malloc(sizeof(char) * fileStats.st_size); //LATEST CHANGE
-    size_t aNumber = fread(img, 1, fileStats.st_size + 1, fin); //ANOTHER CHANGE
-    printf("aNumber = %d\n", aNumber);
+    img = malloc(10469); //LATEST CHANGE
+    size_t aNumber = fread(img, sizeof(char), fileStats.st_size + 1, fin); //ANOTHER CHANGE
+    memcpy(data + test, img, aNumber);
+    printf("--------DATA--------\n%s\n", data);
+    printf("size of img = %lu\n", sizeof(img));
+    test = snprintf(data, sizeof(data), "HTTP/1.1 200 OK\nContent-Type: image/png\nContent-Length: 10469\n\n");
+    memcpy(data + test, img, 10469);
     fclose(fin);
     return aNumber; //return fileStats.st_size
 }

@@ -4,15 +4,28 @@
 /**
  * readHTMLFile: Reads in the contents of a file one character at a time,
  * storing the results in dataBuff. Counts the number of chars for
- * Content-Length. Then concatenates the pre-formatted response header
- * (see line 19), the determined content-length, and the file data to
- * send to the client.
+ * Content-Length. Then concatenates the pre-formatted response header,
+ * the determined content-length, and the file data to send to the client.
  * @Params fileName The name of the file being read in.
  */
 void readHTMLFile(char *fileName);
 
+/**
+ * readImageFile: Reads in the contents of an image as binary data,
+ * storing the results in imgBuff. Determines the size of the image for
+ * Content-Length. Then concatenates the pre-formatted response header,
+ * the determined content-length, and the image data to send to the client.
+ * @Params fileName The name of the file being read in.
+ */
 void readImageFile(char *fileName);
 
+/**
+ * readErrorFile: Reads in the contents of an error one character at a
+ * time, storing the results in dataBuff. Counts the number of chars for
+ * Content-Length. Then concatenates the pre-formatted response header,
+ * the determined content-length, and the file data to send to the client.
+ * @Params fileName The name of the file being read in.
+ */
 void readErrorFile(char *fileName);
 
 /**
@@ -38,7 +51,5 @@ int checkFileExists(char *buff);
  * @Return int Whether it is a png or an html request.
  */
 int contentType(char *request);
-
-int getUserAgent(char *request);
 
 #endif

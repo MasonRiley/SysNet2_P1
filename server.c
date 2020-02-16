@@ -144,8 +144,8 @@ int main() {
  * readHTMLFile: Reads in the contents of a file one character at a time,
  * storing the results in dataBuff. Counts the number of chars for
  * Content-Length. Then concatenates the pre-formatted response header
- * (see line htmlHeader), the determined content-length, and the file
- * data to send to the client.
+ * (see htmlHeader), the determined content-length, and the file data to 
+ * send to the client.
  * @Params fileName The name of the file being read in.
  */
 void readHTMLFile(char *fileName) { 
@@ -176,8 +176,8 @@ void readHTMLFile(char *fileName) {
  * readImageFile: Reads in the contents of an image as binary data,
  * storing the results in imgBuff. Determines the size of the image for
  * Content-Length. Then concatenates the pre-formatted response header
- * (see line imageHeader), the determined content-length, and the image
- * data to send to the client.
+ * (see imageHeader), the determined content-length, and the image data 
+ * to send to the client.
  * @Params fileName The name of the file being read in.
  */
 void readImageFile(char *fileName) {
@@ -265,7 +265,8 @@ int checkFileExists(char *buff) {
     const int OFFSET = 5; //The first 5 characters of a request are 'GET /' 
     int i = 0;
     char fileName[256];
-    printf("size of buffer = %d\n", strlen(buff));
+    
+    //Ensure a nonempty request was made
     if((strlen(buff)) > 0) {
         char ch = buff[i + OFFSET];
    

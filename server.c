@@ -3,8 +3,9 @@
  * accepts connections, sends data, then closes the socket.
  * 
  * Author(s): Mason Riley, Cesar Santiago
+ * Course: COP4635
  * Project #: 1
- * Last Updated: 2/15/2020
+ * Last Updated: 2/16/2020
  */
 
 #include <stdio.h>          // Standard library
@@ -74,8 +75,10 @@ int main() {
 
         // Receive requests from client
         valread = read(tcp_client_socket, buff, BUFFER_SIZE);
-        printf("---REQUEST HEADER---:\n%s\n", buff);
+        printf("-----CLIENT REQUEST-----:\n%s\n", buff);
+        printf("-----END CLIENT REQUEST-----\n\n\n");
 
+        printf("-----SERVER RESPONSE-----\n");
         // Determine if requested file exists
         int fileIndex = checkFileExists(buff);
         if(fileIndex != -1 && valread > 0) {
@@ -91,6 +94,7 @@ int main() {
 
                 // Send HTML data
                 printf("Sending HTML file data to client...\n");
+                printf("RESPONSE:\n%s\n", response);
                 send(tcp_client_socket,response, sizeof(response), 0);
                 printf("...HTML file data successfully sent.\n");
             }
@@ -102,6 +106,7 @@ int main() {
 
                 // Send image data
                 printf("Sending image data to client...\n");
+                printf("RESPONSE:\n%s\n", response);
                 send(tcp_client_socket, response, sizeof(response), 0);
                 printf("...Image data successfully sent.\n");
             }
@@ -110,8 +115,10 @@ int main() {
             // If not exists, then send 404 along with the 404 page
 	        printf("Sending HTTP 404: Not Found\n");
             readErrorFile("404.html");
+            printf("RESPONSE:\n%s\n", response);
             send(tcp_client_socket, response, sizeof(response), 0);
         }
+        printf("-----END SERVER RESPONSE-----\n\n\n");
         
         // Reset all values for safety 
         memset(buff, 0, BUFFER_SIZE);
@@ -289,6 +296,7 @@ int contentType(char* request)
     return -1;
 }
 
+/*
 char* parseRequest(char* request)
 {
     char ch;
@@ -306,5 +314,5 @@ char* parseRequest(char* request)
         nameSize++;
     }
     return filename;//Return 0 for size of zero if no file name could be parsed.
-}
+}*/
 

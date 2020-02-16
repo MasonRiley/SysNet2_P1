@@ -4,8 +4,9 @@
  * the data, and then closes the connection.
  *
  * Author(s): Mason Riley, Cesar Santiago
+ * Course: COP4635
  * Project #: 1
- * Last Updated: 2/15/2020
+ * Last Updated: 2/16/2020
  */
 
 #include <stdio.h>          //Standard library

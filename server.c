@@ -22,12 +22,13 @@
 #include "server.h"
 #include "standards.h"
 
-const char* responseHeader = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: ";
-char* responseHeader2 = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: %d\n\n";
+#define IMAGE 1
+#define HTML 2
+
+char* responseHeader = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: %d\n\n";
 char* imageResponseHeader = "HTTP/1.1 200 OK\nContent-Type: image/png\nContent-Length: %lu\n\n";
-const char* errorHeader = "HTTP/1.1 404 Not Found\n";
+char* errorHeader = "HTTP/1.1 404 Not Found\nContent-Type: text/html; charset=UTF-8\nContent-Length: %d\n\n";
 char data[DataSize];
-unsigned char *img;
 char files[256][256];
 int numFiles = 0;
 
@@ -88,14 +89,7 @@ int main() {
     // Params: Which socket
     //         How many connections
     listen(tcp_server_socket, MaxConnections);
-    printf("Server started, waiting for connection...\n");
-    /*~~~~~~~~~~~~~~~FROM HERE TO~~~~~~~~~~~~~~~~~~*/
-    /*
-    checkFileExists("GET /index.html dadf");
-    checkFileExists("GET /nope.html estsd");
-    readTextFile("index.html");
-    */
-    /*~~~~~~~~~~~~~~HERE ARE TESTS~~~~~~~~~~~~~~~~~*/
+    printf("Server started, listening on port 60001.\n");
 
     while(1) {
         // Server socket to interact with client, structure like before - if 
@@ -110,41 +104,53 @@ int main() {
         //-----7. Send data stream-----
         //-----------------------------
 
-        memset(buff, 0, BufferSize);//Reset the buffer
-        memset(data, 0, sizeof(data)); //Reset data from prior uses
 
         /* Params: Send where
          *         Send what
          *         How much
          *         Flags (optional) */
         valread = read(tcp_client_socket, buff, BufferSize);
-        printf("DEBUG request read: %s\n", buff); //DEBUG STRING - remove when done. Prints client request string
+        printf("---DEBUG request read---:\n%s\n", buff); //DEBUG STRING - remove when done. Prints client request string
 
         //Determine if requested html file exists
         int fileIndex = checkFileExists(buff);
         if(fileIndex != -1 && valread > 0) {
             //If so, retrieve file data and format response header appropriately 
             //Then send formatted response back to client 
-            if(contentType(buff) == 2) {
-                printf("Reading in data...\n");
+            printf("Sending HTTP 200 OK\n");
+            
+            if(contentType(buff) == HTML) {
+                // Read in HTML data
+                printf("Reading in HTML file data...\n");
                 readTextFile(files[fileIndex]);
-                printf("Data successsfully read.\nSending data...\n");
+                printf("...HTML file data successfully read.\n");
+
+                // Send HTML data
+                printf("Sending HTML file data to client...\n");
                 send(tcp_client_socket, data, sizeof(data), 0);
-                printf("Data successfully sent\n");
+                printf("...HTML file data successfully sent.\n");
             }
-            else if(contentType(buff) == 1) {
+            else if(contentType(buff) == IMAGE) {
+                // Read in image data
+                printf("Reading in image file data...\n");
                 readImageFile(files[fileIndex]);
+                printf("...Image data successfully read.\n");
+
+                //Send image data
+                printf("Sending image data to client...\n");
                 send(tcp_client_socket, data, sizeof(data), 0);
-            }
-            else {
-                send(tcp_client_socket, errorHeader, sizeof(errorHeader), 0); 
+                printf("...Image data successfully sent.\n");
             }
         }
         else {
-	        printf("ERORR: Bad link found\n");
-            send(tcp_client_socket, errorHeader, sizeof(errorHeader), 0);
+	        printf("Sending HTTP 404: Not Found\n");
+            readErrorFile("404.html");
+            send(tcp_client_socket, data, sizeof(data), 0);
         }
         
+        // Reset all values for safety 
+        memset(buff, 0, BufferSize);
+        memset(data, 0, sizeof(data));
         fileIndex = 0;
         valread = 0;
     }
@@ -168,25 +174,18 @@ int main() {
 void readTextFile(char *fileName) { 
     char ch;
     char dataBuff[DataSize] = "";
-    char sizeBuff[10];
     FILE *fin;
 
     // Open html file, read each character into dataBuff, and track size
     fin = fopen(fileName, "r");
     int byteSize = 0;
     while((ch = fgetc(fin)) != EOF) {
-        ++byteSize;
         strncat(dataBuff, &ch, 1);
+        ++byteSize;
     }
     
-    /*sprintf(sizeBuff, "%d", byteSize);
-    strcat(sizeBuff, "\n");
-    strcat(data, responseHeader);
-    strcat(data, sizeBuff);
-    strcat(data, "Connection: keep-alive\n\n");*/
-
     // Copy appropriate header into 'data', then the data to be sent
-    snprintf(data, sizeof(data), responseHeader2, byteSize);
+    snprintf(data, sizeof(data), responseHeader, byteSize);
     strcat(data, dataBuff);
     
     // Reset dataBuff
@@ -199,26 +198,48 @@ void readTextFile(char *fileName) {
 void readImageFile(char *fileName) {
     FILE *fin;
     struct stat fileStats;
-    char size[7];
+    unsigned char *img;
     int fd, headerLen;
 
     // Get size of image and open it
     fd = open(fileName, O_RDONLY);
     fstat(fd, &fileStats);
     fin = fopen(fileName, "rb");
-    //strcat(data, imageResponseHeader);
-    //strcat(data, size);
-    //strcat(data, "\n\n");
 
-    // Read image into 'img
+    // Read image into 'img'
     img = malloc(fileStats.st_size);
     fread(img, sizeof(char), fileStats.st_size, fin);
 
-    // Copy appropriate header into 'data', then memcpy image data into it
+    // Copy appropriate header into 'data', then memcpy image binary data into it
     headerLen = snprintf(data, sizeof(data), imageResponseHeader, fileStats.st_size);
     memcpy(data + headerLen, img, fileStats.st_size);
 
     //Close file
+    fclose(fin);
+}
+
+void readErrorFile(char *fileName) {
+    char ch;
+    char dataBuff[DataSize] = "";
+    FILE *fin;
+    int byteSize;
+
+    // Open html file, read each character into dataBuff, and track size
+    fin = fopen(fileName, "r");
+    byteSize = 0;
+    while((ch = fgetc(fin)) != EOF) {
+        strncat(dataBuff, &ch, 1);
+        ++byteSize;
+    }
+
+    // Copy appropriate header into data, then the data to be sent
+    snprintf(data, sizeof(data), errorHeader, byteSize);
+    strcat(data, dataBuff);
+
+    //Reset dataBuff
+    memset(dataBuff, '\0', sizeof(dataBuff));
+
+    // Close the file
     fclose(fin);
 }
 
@@ -254,23 +275,27 @@ int checkFileExists(char *buff) {
     int i = 0;
     char fileName[256];
     char ch = buff[i + OFFSET];
-    
-    printf("FILE NAME = %s\n", fileName);
-    while(ch != ' ') {
-        fileName[i++] = ch;
-        ch = buff[i + OFFSET];
+   
+    // If navigating to '/' 
+    if(ch == ' ') {
+        strcpy(fileName, "index.html");
     }
-    printf("FILE NAME = %s\n", fileName);
+    // Otherwise, navigating to '/[value].html'
+    else {
+        while(ch != ' ') {
+            fileName[i++] = ch;
+            ch = buff[i + OFFSET];
+        }
+    }
+ 
     for(i = 0; i < numFiles; ++i) {
         if((strcmp(files[i], fileName)) == 0) {
-            printf("FILE EXISTS\n");
             memset(fileName, 0, sizeof(fileName));
             return i;
         }
     }
 
     memset(fileName, 0, sizeof(fileName));
-    printf("FILE DOES NOT EXIST\n");
     return -1;
 }
 

@@ -13,6 +13,8 @@ void readTextFile(char *fileName);
 
 void readImageFile(char *fileName);
 
+void readErrorFile(char *fileName);
+
 /**
  * getFiles: Reads in every file in the cwd and stores their names in
  * 'files'. Additionally tracks how many files are in the cwd.

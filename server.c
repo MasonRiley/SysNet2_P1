@@ -6,6 +6,7 @@
  * Project #: 1
  * Last Updated: 2/15/2020
  */
+
 #include <stdio.h>          //Standard library
 #include <stdlib.h>         //Standard library
 #include <sys/socket.h>     //API and definitions for the sockets
@@ -16,18 +17,18 @@
 #include <dirent.h>         //Directory & file search methods
 
 #include "server.h"
+#include "standards.h"
 
-#define PortNumber 60001
-#define DataSize 1024
-#define MaxConnections 5
-
-char responseHeader[DataSize] = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: ";
+const char* responseHeader = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: ";
 char data[DataSize];
 char files[256][256];
 int numFiles = 0;
 
 int main() {    
-    int i;
+
+    long valread;
+    char buff[BufferSize];
+
     //-----------------------------------------
     //-----1. Get list of all files in cwd-----
     //-----------------------------------------
@@ -102,23 +103,21 @@ int main() {
         //-----7. Send data stream-----
         //-----------------------------
 
+        memset(buff, 0, BufferSize);//Reset the buffer
+        memset(data, 0, sizeof(data)); //Reset data from prior uses
+
         /* Params: Send where
          *         Send what
          *         How much
          *         Flags (optional) */
-        char buff[30000] = {0};
-        long valread = read(tcp_client_socket, buff, 30000);
+        valread = read(tcp_client_socket, buff, BufferSize);
         printf("DEBUG request read: %s\n", buff); //DEBUG STRING - remove when done. Prints client request string
 
         //Determine if requested html file exists
         int fileIndex = checkFileExists(buff);
-        if(valread > 0 && fileIndex != -1) {
+        if(fileIndex != -1 && valread > 0) {
             //If so, retrieve file data and format response header appropriately 
-            memset(data, 0, sizeof(data)); //Reset data from prior uses
-            if(fileIndex != -1)
-            {
-                readFile(files[fileIndex]);
-            }
+            readFile(files[fileIndex]);
 
             //Then send formatted response back to client 
             send(tcp_client_socket, data, sizeof(data), 0);
@@ -143,7 +142,7 @@ int main() {
  */
 void readFile(char *fileName) { 
     char ch;
-    char dataBuff[1024] = "";
+    char dataBuff[DataSize] = "";
     char sizeBuff[10];
     FILE *fin;
     fin = fopen(fileName, "r");

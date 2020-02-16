@@ -2,14 +2,16 @@
 #define DEF_SERVER
 
 /**
- * readFile: Reads in the contents of a file one character at a time,
+ * readTextFile: Reads in the contents of a file one character at a time,
  * storing the results in dataBuff. Counts the number of chars for
  * Content-Length. Then concatenates the pre-formatted response header
  * (see line 19), the determined content-length, and the file data to
  * send to the client.
  * @Params fileName The name of the file being read in.
  */
-void readFile(char *fileName);
+void readTextFile(char *fileName);
+
+int readImageFile(char *fileName);
 
 /**
  * getFiles: Reads in every file in the cwd and stores their names in
@@ -27,7 +29,7 @@ void getFiles();
  */
 int checkFileExists(char *buff);
 
-char* contentType(char* request);
+int contentType(char* request);
 
 char* parseRequest(char* request);
 

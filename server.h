@@ -2,6 +2,29 @@
 #define DEF_SERVER
 
 /**
+ * sendHTML: Performs all necessary operations to send HTML data
+ * to the designated client, including reading the given file.
+ * @Params tcp_client_socket The socket of the client
+ *         fileIndex The index of the file being sent
+ */
+void sendHTML(int tcp_client_socket, int fileIndex);
+
+/**
+ * sendImage: Performs all necessary operations to send image data
+ * to the designated client, including reading the given image.
+ * @Params tcp_client_socket The socket of the client
+ *         fileIndex The index of the file being sent
+ */
+void sendImage(int tcp_client_socket, int fileIndex);
+
+/**
+ * send404Error: Performs all necessary operations to send the 404 
+ * page to the designated client, including reading the 404.html file.
+ * @Params tcp_client_socket The socket of the client
+ */
+void send404Error(int tcp_client_socket);
+
+/**
  * readHTMLFile: Reads in the contents of a file one character at a time,
  * storing the results in dataBuff. Counts the number of chars for
  * Content-Length. Then concatenates the pre-formatted response header,

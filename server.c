@@ -133,9 +133,10 @@ int main() {
             }
             else if(contentType(buff) == 1) {
                 printf("FINALLY GOT HERE\n");
-                readImageFile(files[fileIndex]);
+                int size = readImageFile(files[fileIndex]);
                 send(tcp_client_socket, data, sizeof(data), 0);
-                send(tcp_client_socket, img, sizeof(img), 0);
+                sleep(1);
+                send(tcp_client_socket, img, size, 0);
             }
             else {
                 send(tcp_client_socket, errorHeader, sizeof(errorHeader), 0); 
@@ -188,8 +189,7 @@ void readTextFile(char *fileName) {
     fclose(fin);
 }
 
-void readImageFile(char *fileName) {
-    char ch;
+int readImageFile(char *fileName) {
     FILE *fin;
     struct stat fileStats;
     char size[7];
@@ -202,9 +202,10 @@ void readImageFile(char *fileName) {
     strcat(data, size);
     strcat(data, "\n\n");
     printf("DATA = %s\n", data);
-    memset(img, 0, sizeof(img));
-    fread(img, sizeof(char), size + 1, fin);
+    //memset(img, 0, sizeof(img));
+    fread(img, sizeof(char), fileStats.st_size + 1, fin);
     fclose(fin);
+    return fileStats.st_size;
 }
 
 /**

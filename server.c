@@ -83,44 +83,21 @@ int main() {
         printf("-----------CLIENT REQUEST----------\n%s\n", buff);
         printf("---------END CLIENT REQUEST--------\n\n");
 
-        printf("----------SERVER RESPONSE----------\n");
+        printf("----------SERVER RESPONSE----------\n");        
         // Determine if requested file exists
         int fileIndex = checkFileExists(buff);
+
         if(fileIndex != -1 && valread > 0) {
             // If exists then determine file type, 
             // format data stream, and send it to client
-            if(contentType(buff) == HTML) {
-                // Read in HTML data
-                printf("Reading in HTML file data...\n");
-                readHTMLFile(files[fileIndex]);
-                printf("...HTML file data successfully read.\n");
-
-                // Send HTML data
-                printf("Sending HTML file data to client...\n\n");
-                printf("RESPONSE:\n%s\n", response);
-                send(tcp_client_socket,response, sizeof(response), 0);
-                printf("...HTML file data successfully sent.\n");
-            }
-            else if(contentType(buff) == IMAGE) {
-                // Read in image data
-                printf("Reading in image file data...\n");
-                readImageFile(files[fileIndex]);
-                printf("...Image data successfully read.\n");
-
-                // Send image data
-                printf("Sending image data to client...\n\n");
-                printf("RESPONSE:\n%s\n", response);
-                send(tcp_client_socket, response, sizeof(response), 0);
-                printf("...Image data successfully sent.\n");
-            }
+            if(contentType(buff) == HTML) 
+                sendHTML(tcp_client_socket, fileIndex);
+            else if(contentType(buff) == IMAGE) 
+                sendImage(tcp_client_socket, fileIndex); 
         }
         else {
             // If not exists, then send 404 along with the 404 page
-	        printf("ERROR: HTTP 404: Not Found\n\n");
-            readErrorFile("404.html");
-            printf("RESPONSE:\n%s\n", response);
-            send(tcp_client_socket, response, sizeof(response), 0);
-
+            send404Error(tcp_client_socket);
         }
         printf("--------END SERVER RESPONSE--------\n\n");
         
@@ -141,11 +118,61 @@ int main() {
 }
 
 /**
+ * sendHTML: Performs all necessary operations to send HTML data
+ * to the designated client, including reading the given file.
+ * @Params tcp_client_socket The socket of the client
+ *         fileIndex The index of the file being sent
+ */
+void sendHTML(int tcp_client_socket, int fileIndex) {
+    // Read in HTML data
+    printf("Reading in HTML file data...\n");
+    readHTMLFile(files[fileIndex]);
+    printf("...HTML file data successfully read.\n");
+
+    // Send HTML data
+    printf("Sending HTML file data to client...\n\n");
+    printf("RESPONSE:\n%s\n", response);
+    send(tcp_client_socket,response, sizeof(response), 0);
+    printf("...HTML file data successfully sent.\n");
+}
+
+/**
+ * sendImage: Performs all necessary operations to send image data
+ * to the designated client, including reading the given image.
+ * @Params tcp_client_socket The socket of the client
+ *         fileIndex The index of the file being sent
+ */
+void sendImage(int tcp_client_socket, int fileIndex) {
+    printf("Reading in image file data...\n");
+    readImageFile(files[fileIndex]);
+    printf("...Image data successfully read.\n");
+
+    // Send image data
+    printf("Sending image data to client...\n\n");
+    printf("RESPONSE:\n%s\n", response);
+    send(tcp_client_socket, response, sizeof(response), 0);
+    printf("...Image data successfully sent.\n");
+}
+
+/**
+ * send404Error: Performs all necessary operations to send the 404 
+ * page to the designated client, including reading the 404.html file.
+ * @Params tcp_client_socket The socket of the client
+ */
+void send404Error(int tcp_client_socket) {
+    // If not exists, then send 404 along with the 404 page
+    printf("ERROR: HTTP 404: Not Found\n\n");
+    readErrorFile("404.html");
+    printf("RESPONSE:\n%s\n", response);
+    send(tcp_client_socket, response, sizeof(response), 0);
+}
+
+/**
  * readHTMLFile: Reads in the contents of a file one character at a time,
  * storing the results in dataBuff. Counts the number of chars for
  * Content-Length. Then concatenates the pre-formatted response header
- * (see line htmlHeader), the determined content-length, and the file
- * data to send to the client.
+ * (see htmlHeader), the determined content-length, and the file data to 
+ * send to the client.
  * @Params fileName The name of the file being read in.
  */
 void readHTMLFile(char *fileName) { 
@@ -176,8 +203,8 @@ void readHTMLFile(char *fileName) {
  * readImageFile: Reads in the contents of an image as binary data,
  * storing the results in imgBuff. Determines the size of the image for
  * Content-Length. Then concatenates the pre-formatted response header
- * (see line imageHeader), the determined content-length, and the image
- * data to send to the client.
+ * (see imageHeader), the determined content-length, and the image data 
+ * to send to the client.
  * @Params fileName The name of the file being read in.
  */
 void readImageFile(char *fileName) {
@@ -265,7 +292,8 @@ int checkFileExists(char *buff) {
     const int OFFSET = 5; //The first 5 characters of a request are 'GET /' 
     int i = 0;
     char fileName[256];
-    printf("size of buffer = %d\n", strlen(buff));
+    
+    //Ensure a nonempty request was made
     if((strlen(buff)) > 0) {
         char ch = buff[i + OFFSET];
    

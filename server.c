@@ -200,7 +200,9 @@ int readImageFile(char *fileName) {
     fin = fopen(fileName, "r");
     strcat(data, imageResponseHeader);
     strcat(data, size);
-    strcat(data, "\n\n");
+    strcat(data, "\n");
+    strcat(data, "Connection: keep-alive\n\n");
+    //strcat(data, "\n\n");
     printf("DATA = %s\n", data);
     //memset(img, 0, sizeof(img));
     fread(img, sizeof(char), fileStats.st_size + 1, fin);

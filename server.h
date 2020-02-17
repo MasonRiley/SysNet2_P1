@@ -2,16 +2,54 @@
 #define DEF_SERVER
 
 /**
- * readTextFile: Reads in the contents of a file one character at a time,
+ * sendHTML: Performs all necessary operations to send HTML data
+ * to the designated client, including reading the given file.
+ * @Params tcp_client_socket The socket of the client
+ *         fileIndex The index of the file being sent
+ */
+void sendHTML(int tcp_client_socket, int fileIndex);
+
+/**
+ * sendImage: Performs all necessary operations to send image data
+ * to the designated client, including reading the given image.
+ * @Params tcp_client_socket The socket of the client
+ *         fileIndex The index of the file being sent
+ */
+void sendImage(int tcp_client_socket, int fileIndex);
+
+/**
+ * send404Error: Performs all necessary operations to send the 404 
+ * page to the designated client, including reading the 404.html file.
+ * @Params tcp_client_socket The socket of the client
+ */
+void send404Error(int tcp_client_socket);
+
+/**
+ * readHTMLFile: Reads in the contents of a file one character at a time,
  * storing the results in dataBuff. Counts the number of chars for
- * Content-Length. Then concatenates the pre-formatted response header
- * (see line 19), the determined content-length, and the file data to
- * send to the client.
+ * Content-Length. Then concatenates the pre-formatted response header,
+ * the determined content-length, and the file data to send to the client.
  * @Params fileName The name of the file being read in.
  */
-void readTextFile(char *fileName);
+void readHTMLFile(char *fileName);
 
+/**
+ * readImageFile: Reads in the contents of an image as binary data,
+ * storing the results in imgBuff. Determines the size of the image for
+ * Content-Length. Then concatenates the pre-formatted response header,
+ * the determined content-length, and the image data to send to the client.
+ * @Params fileName The name of the file being read in.
+ */
 void readImageFile(char *fileName);
+
+/**
+ * readErrorFile: Reads in the contents of an error one character at a
+ * time, storing the results in dataBuff. Counts the number of chars for
+ * Content-Length. Then concatenates the pre-formatted response header,
+ * the determined content-length, and the file data to send to the client.
+ * @Params fileName The name of the file being read in.
+ */
+void readErrorFile(char *fileName);
 
 /**
  * getFiles: Reads in every file in the cwd and stores their names in
@@ -29,8 +67,12 @@ void getFiles();
  */
 int checkFileExists(char *buff);
 
-int contentType(char* request);
-
-char* parseRequest(char* request);
+/**
+ * contentType: Takes in a request string and detemines from it if the
+ * server needs to return an image or a text file.
+ * @Params request The string of the request.
+ * @Return int Whether it is a png or an html request, -1 otherwise.
+ */
+int contentType(char *request);
 
 #endif

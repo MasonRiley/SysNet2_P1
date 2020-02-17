@@ -4,8 +4,9 @@
  * the data, and then closes the connection.
  *
  * Author(s): Mason Riley, Cesar Santiago
+ * Course: COP4635
  * Project #: 1
- * Last Updated: 2/15/2020
+ * Last Updated: 2/16/2020
  */
 
 #include <stdio.h>          //Standard library
@@ -15,73 +16,68 @@
 #include <netinet/in.h>     //Structures to store address information
 #include <unistd.h>         //Defines misc. symbolic constants and types
 #include <string.h>         //String methods
-#include "standards.h"
+#include "standards.h"      //Contains constants used in both server.c and client.c
 
 
 int main(){    
-    //------------------------------------
-    //-----1. Creating the TCP socket-----
-    //------------------------------------
-
-    // Socket descriptor
-    int tcp_client_socket;        
-
-    /* Calling the socket function
-     * Params: Socket domain
-     *         Socket stream type
-     *         TCP protocol (default) */
-    tcp_client_socket = socket(AF_INET, SOCK_STREAM, 0);
-
-    //----------------------------------------------------------
-    //-----2. Specify address and port of the remote socket-----
-    //----------------------------------------------------------
+    int end = 0;
+    while(end == 0) {
     
-    // Declaring a structure for the address    
-    struct sockaddr_in tcp_server_address;             
-    
-    // Structure Fields' definition: Sets the address family 
-    // of the address the client would connect to    
-    tcp_server_address.sin_family = AF_INET;
-    
-    // Specify and pass the port number to connect - converting in right network byte order    
-    tcp_server_address.sin_port = htons(PortNumber);   
-    
-    // Connecting to 0.0.0.0
-    tcp_server_address.sin_addr.s_addr = INADDR_ANY;       
-    
-    //--------------------------------------------
-    //-----3. Connecting to the remote socket-----
-    //--------------------------------------------
+        // Creating the TCP socket
+        int tcp_client_socket; // Socket descriptor       
+        tcp_client_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-    /* Params: Which socket 
-     *         Cast for address to the specific structure type 
-     *         Size of address */
-    int connection_status = connect(tcp_client_socket, 
-            (struct sockaddr *) &tcp_server_address, sizeof(tcp_server_address));         
+        // Specify address and port of the remote socket
+        struct sockaddr_in tcp_server_address; // Declaring a structure for the address           
+        
+        // Structure Fields' definition: Sets the address family 
+        // of the address the client would connect to    
+        tcp_server_address.sin_family = AF_INET;
+        
+        // Specify and pass the port number to connect - converting in right network byte order    
+        tcp_server_address.sin_port = htons(PORT_NUMBER);   
+        
+        // Connection uses localhost
+        tcp_server_address.sin_addr.s_addr = INADDR_ANY;       
+        
+        // Send data to server
+        char tcp_server_response[DATA_SIZE];    
+        char req[20];
+        char temp[BUFFER_SIZE];
+        memset(temp, 0, BUFFER_SIZE);
+        memset(req, 0, 20);
 
-    // Return value of 0 means all okay, -1 means a problem        
-    if (connection_status == -1){                                                  
-        printf(" Problem connecting to the socket! Sorry!! \n");     
-    }  
+        // Connecting to the remote socket
+        int connection_status = connect(tcp_client_socket, 
+                (struct sockaddr *) &tcp_server_address, sizeof(tcp_server_address));         
 
-    char *test = "GET /index.html /HTML1.1";
-    send(tcp_client_socket, test, strlen(test), 0);
-    char tcp_server_response[256];    
+        // Return value of 0 means all okay, -1 means a problem        
+        if (connection_status == -1){                                                  
+            printf("ERROR: Failed to connect to server.\n");     
+        }
+        else {
+            printf("Successfully connected to server.\n");
+            printf("Enter a file name to request:\n");
+            scanf("%s", req);
 
-    /* Params: Where (socket)
-     *         What (string)
-     *         How much (size of the server response)
-     *         Flags (0) */
-    recv(tcp_client_socket, &tcp_server_response, sizeof(tcp_server_response), 0); 
-    
-    //------------------------------------------------
-    //-----4. Output, as received from the server-----
-    //------------------------------------------------
-    printf("\n\n Server says: %s \n", tcp_server_response);    
-    
-    //-------------------------
-    //-----5. Close socket-----
-    //-------------------------
-    close(tcp_client_socket);    
+            strcat(temp, "GET /");
+            strcat(temp, req);
+            strcat(temp, " /HTML1.1");
+
+            printf("%s", temp);
+
+            send(tcp_client_socket, temp, strlen(temp), 0);
+            // Receive data from server and print it
+            recv(tcp_client_socket, &tcp_server_response, sizeof(tcp_server_response), 0); 
+            printf("\n\nServer says: %s \n", tcp_server_response);    
+        }
+        
+        // Close socket 
+        close(tcp_client_socket);    
+        memset(temp, 0, BUFFER_SIZE);
+        memset(req, 0, 20);
+        memset(tcp_server_response, 0, sizeof(tcp_server_response));
+    }
+   
     return 0;
 }

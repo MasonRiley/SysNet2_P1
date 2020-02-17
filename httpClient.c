@@ -53,7 +53,8 @@ int main(){
 
         // Return value of 0 means all okay, -1 means a problem        
         if (connection_status == -1){                                                  
-            printf("ERROR: Failed to connect to server.\n");     
+            printf("ERROR: Failed to connect to server.\n");   
+            end = 1;  
         }
         else {
             printf("Successfully connected to server.\n");
@@ -68,8 +69,14 @@ int main(){
 
             send(tcp_client_socket, temp, strlen(temp), 0);
             // Receive data from server and print it
-            recv(tcp_client_socket, &tcp_server_response, sizeof(tcp_server_response), 0); 
-            printf("\n\nServer says: %s \n", tcp_server_response);    
+            recv(tcp_client_socket, &tcp_server_response, sizeof(tcp_server_response), 0);
+            if(strlen(tcp_server_response) > 0) {
+                printf("\n\nServer says: %s \n", tcp_server_response);    
+            }
+            else {
+                printf("\nERROR: Server has severed connection.\n");
+                end = 1;
+            }
         }
         
         // Close socket 

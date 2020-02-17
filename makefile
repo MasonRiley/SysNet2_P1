@@ -1,16 +1,16 @@
 CC=gcc
-CFLAGS=-I -lm
+CFLAGS=-I -lm -Wall -G
 DEPS =  
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-all: Client Server
+all: httpClient httpServer
 
-Client: client.c
-	$(CC) -o Client client.c
+httpClient: httpClient.c
+	$(CC) -o httpClient httpClient.c
 
-Server: server.c  	
-	$(CC) -o Server server.c 
+httpServer: httpServer.c  	
+	$(CC) -o httpServer httpServer.c 
 
 clean:
-	rm -rf *.o Server Client
+	rm -rf *.o httpServer httpClient

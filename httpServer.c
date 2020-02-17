@@ -20,7 +20,7 @@
 #include <string.h>         // String methods
 #include <dirent.h>         // Directory & file search methods
 
-#include "server.h"
+#include "httpServer.h"
 #include "standards.h"      // Contains constants used in both server.c and client.c
 
 // Content type constants

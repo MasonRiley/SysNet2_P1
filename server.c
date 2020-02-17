@@ -54,7 +54,7 @@ int main() {
     tcp_server_socket = socket(AF_INET, SOCK_STREAM, 0); 
 
     // Define the server address
-    struct sockaddr_in tcp_server_address; //declaring a structure for the address 
+    struct sockaddr_in tcp_server_address; // Declaring a structure for the address 
     tcp_server_address.sin_family = AF_INET;
 
     // Passing the port number, converting in right network byte order

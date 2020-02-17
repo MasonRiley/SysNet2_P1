@@ -20,65 +20,64 @@
 
 
 int main(){    
-    
     int end = 0;
+    while(end == 0) {
     
-    // Creating the TCP socket
-    int tcp_client_socket; // Socket descriptor       
-    tcp_client_socket = socket(AF_INET, SOCK_STREAM, 0);
+        // Creating the TCP socket
+        int tcp_client_socket; // Socket descriptor       
+        tcp_client_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-    // Specify address and port of the remote socket
-    struct sockaddr_in tcp_server_address; // Declaring a structure for the address           
-    
-    // Structure Fields' definition: Sets the address family 
-    // of the address the client would connect to    
-    tcp_server_address.sin_family = AF_INET;
-    
-    // Specify and pass the port number to connect - converting in right network byte order    
-    tcp_server_address.sin_port = htons(PORT_NUMBER);   
-    
-    // Connection uses localhost
-    tcp_server_address.sin_addr.s_addr = INADDR_ANY;       
-    
-    // Send data to server
-    char tcp_server_response[DATA_SIZE];    
-    char req[20];
-    char temp[BUFFER_SIZE];
-    memset(temp, 0, BUFFER_SIZE);
-    memset(req, 0, 20);
+        // Specify address and port of the remote socket
+        struct sockaddr_in tcp_server_address; // Declaring a structure for the address           
+        
+        // Structure Fields' definition: Sets the address family 
+        // of the address the client would connect to    
+        tcp_server_address.sin_family = AF_INET;
+        
+        // Specify and pass the port number to connect - converting in right network byte order    
+        tcp_server_address.sin_port = htons(PORT_NUMBER);   
+        
+        // Connection uses localhost
+        tcp_server_address.sin_addr.s_addr = INADDR_ANY;       
+        
+        // Send data to server
+        char tcp_server_response[DATA_SIZE];    
+        char req[20];
+        char temp[BUFFER_SIZE];
+        memset(temp, 0, BUFFER_SIZE);
+        memset(req, 0, 20);
 
-    while(end == 0)
-    {
         // Connecting to the remote socket
         int connection_status = connect(tcp_client_socket, 
                 (struct sockaddr *) &tcp_server_address, sizeof(tcp_server_address));         
 
         // Return value of 0 means all okay, -1 means a problem        
         if (connection_status == -1){                                                  
-            printf("ERROR: Problem connecting to the socket.\n");     
+            printf("ERROR: Failed to connect to server.\n");     
         }
+        else {
+            printf("Successfully connected to server.\n");
+            printf("Enter a file name to request:\n");
+            scanf("%s", req);
 
-        printf("Connection to the server achieved.\n");
-        printf("Enter a file name to request:\n");
-        scanf("%s", req);
+            strcat(temp, "GET /");
+            strcat(temp, req);
+            strcat(temp, " /HTML1.1");
 
-        strcat(temp, "GET /");
-        strcat(temp, req);
-        strcat(temp, " /HTML1.1");
+            printf("%s", temp);
 
-        printf("%s", temp);
-
-        send(tcp_client_socket, temp, strlen(temp), 0);
-        memset(temp, 0, BUFFER_SIZE);
-
-        // Receive data from server and print it
-        recv(tcp_client_socket, &tcp_server_response, sizeof(tcp_server_response), 0); 
-        printf("\n\nServer says: %s \n", tcp_server_response);    
-
+            send(tcp_client_socket, temp, strlen(temp), 0);
+            // Receive data from server and print it
+            recv(tcp_client_socket, &tcp_server_response, sizeof(tcp_server_response), 0); 
+            printf("\n\nServer says: %s \n", tcp_server_response);    
+        }
+        
         // Close socket 
         close(tcp_client_socket);    
+        memset(temp, 0, BUFFER_SIZE);
+        memset(req, 0, 20);
+        memset(tcp_server_response, 0, sizeof(tcp_server_response));
     }
-    
    
     return 0;
 }

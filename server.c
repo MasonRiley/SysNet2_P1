@@ -292,7 +292,6 @@ int checkFileExists(char *buff) {
     const int OFFSET = 5; //The first 5 characters of a request are 'GET /' 
     int i = 0;
     char fileName[256];
-    
     //Ensure a nonempty request was made
     if((strlen(buff)) > 0) {
         char ch = buff[i + OFFSET];
@@ -308,7 +307,6 @@ int checkFileExists(char *buff) {
                 ch = buff[i + OFFSET];
             }
         }
-     
         for(i = 0; i < numFiles; ++i) {
             if((strcmp(files[i], fileName)) == 0) {
                 memset(fileName, 0, sizeof(fileName));
